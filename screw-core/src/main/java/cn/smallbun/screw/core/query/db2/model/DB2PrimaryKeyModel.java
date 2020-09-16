@@ -15,36 +15,44 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cn.smallbun.screw.core.metadata.model;
+package cn.smallbun.screw.core.query.db2.model;
 
+import cn.smallbun.screw.core.mapping.MappingField;
+import cn.smallbun.screw.core.metadata.PrimaryKey;
 import lombok.Data;
 
-import java.io.Serializable;
-import java.util.List;
-
 /**
- * 表信息领域对象
+ * oracle table primary
  *
  * @author SanLi
- * Created by qinggang.zuo@gmail.com / 2689170096@qq.com on 2020/3/17 20:22
+ * Created by qinggang.zuo@gmail.com / 2689170096@qq.com on 2020/3/27 11:11
  */
 @Data
-public class TableModel implements Serializable {
+public class DB2PrimaryKeyModel implements PrimaryKey {
 
-    private static final long serialVersionUID = 825666678767312142L;
     /**
-     * 表模式名
-     */
-    private String            tableSchem;/**
      * 表名
      */
-    private String            tableName;
+    @MappingField(value = "TABLE_NAME")
+    private String tableName;
     /**
-     * 备注
+     * pk name
      */
-    private String            remarks;
+    @MappingField(value = "PK_NAME")
+    private String pkName;
     /**
-     * 表列
+     * 表模式
      */
-    private List<ColumnModel> columns;
+    @MappingField(value = "TABLE_SCHEM")
+    private String tableSchem;
+    /**
+     * 列名
+     */
+    @MappingField(value = "COLUMN_NAME")
+    private String columnName;
+    /**
+     * 键序列
+     */
+    @MappingField(value = "KEY_SEQ")
+    private String keySeq;
 }

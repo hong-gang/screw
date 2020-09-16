@@ -20,6 +20,7 @@ package cn.smallbun.screw.core.process;
 import cn.smallbun.screw.core.Configuration;
 import cn.smallbun.screw.core.engine.EngineFileType;
 import cn.smallbun.screw.core.metadata.Column;
+import cn.smallbun.screw.core.metadata.ForeignKey;
 import cn.smallbun.screw.core.metadata.PrimaryKey;
 import cn.smallbun.screw.core.metadata.Table;
 import cn.smallbun.screw.core.metadata.model.ColumnModel;
@@ -64,6 +65,11 @@ public abstract class AbstractProcess implements Process {
      * 主键信息缓存
      */
     volatile Map<String, List<PrimaryKey>>      primaryKeysCaching = new ConcurrentHashMap<>();
+
+    /**
+     * 主键信息缓存
+     */
+    volatile Map<String, List<ForeignKey>>      foreignKeysCaching = new ConcurrentHashMap<>();
 
     /**
      * Configuration

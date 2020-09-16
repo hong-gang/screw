@@ -27,6 +27,13 @@ import java.io.Serializable;
  */
 public interface Table extends Serializable {
     /**
+     * 獲取表模式名
+     *
+     * @return {@link String}
+     */
+    String getTableSchem();
+
+    /**
      * 表名
      *
      * @return {@link String}

@@ -18,18 +18,24 @@
 package cn.smallbun.screw.core.query.db2;
 
 import cn.smallbun.screw.core.exception.QueryException;
+import cn.smallbun.screw.core.mapping.Mapping;
 import cn.smallbun.screw.core.metadata.Column;
 import cn.smallbun.screw.core.metadata.Database;
+import cn.smallbun.screw.core.metadata.ForeignKey;
 import cn.smallbun.screw.core.metadata.PrimaryKey;
-import cn.smallbun.screw.core.metadata.Table;
 import cn.smallbun.screw.core.query.AbstractDatabaseQuery;
+import cn.smallbun.screw.core.query.db2.model.*;
+import cn.smallbun.screw.core.query.oracle.model.OraclePrimaryKeyModel;
 import cn.smallbun.screw.core.util.Assert;
 import cn.smallbun.screw.core.util.ExceptionUtils;
+import cn.smallbun.screw.core.util.JdbcUtils;
 
 import javax.sql.DataSource;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
-import static cn.smallbun.screw.core.constant.DefaultConstants.NOT_SUPPORTED;
+import static cn.smallbun.screw.core.constant.DefaultConstants.PERCENT_SIGN;
 
 /**
  * db2 数据库查询
@@ -54,7 +60,10 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
      */
     @Override
     public Database getDataBase() throws QueryException {
-        throw ExceptionUtils.mpe(NOT_SUPPORTED);
+        //throw ExceptionUtils.mpe(NOT_SUPPORTED);
+        DB2DatabaseModel model = new DB2DatabaseModel();
+        model.setDatabase(getSchema());
+        return model;
     }
 
     /**
@@ -63,8 +72,37 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
      * @return {@link List} 所有表信息
      */
     @Override
-    public List<Table> getTables() {
-        throw ExceptionUtils.mpe(NOT_SUPPORTED);
+    public List<DB2TableModel> getTables() {
+        //throw ExceptionUtils.mpe(NOT_SUPPORTED);
+        ResultSet resultSet = null;
+        try {
+            //查询
+            resultSet = getMetaData().getTables(getCatalog(), getSchema(), PERCENT_SIGN,
+                    new String[] { "TABLE" });
+            //映射
+            List<DB2TableModel> list = Mapping.convertList(resultSet, DB2TableModel.class);
+            //由于ORACLE 查询 REMARKS 非常耗费性能，所以这里使用自定义SQL查询
+            //https://docs.oracle.com/en/database/oracle/oracle-database/20/jjdbc/performance-extensions.html#GUID-15865071-39F2-430F-9EDA-EB34D0B2D560
+            //获取所有表 查询表名、说明
+            /*
+            String sql = "SELECT TABLE_NAME,COMMENTS AS REMARKS FROM USER_TAB_COMMENTS WHERE TABLE_TYPE = 'TABLE'";
+            resultSet = prepareStatement(String.format(sql, getSchema())).executeQuery();
+            List<OracleTableModel> inquires = Mapping.convertList(resultSet,
+                    OracleTableModel.class);
+            //处理备注信息
+            list.forEach((DB2TableModel model) -> {
+                //备注
+                inquires.stream()
+                        .filter(inquire -> model.getTableName().equals(inquire.getTableName()))
+                        .forEachOrdered(inquire -> model.setRemarks(inquire.getRemarks()));
+            });
+            */
+            return list;
+        } catch (SQLException e) {
+            throw ExceptionUtils.mpe(e);
+        } finally {
+            JdbcUtils.close(resultSet, this.connection);
+        }
     }
 
     /**
@@ -75,9 +113,20 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
      * @throws QueryException QueryException
      */
     @Override
-    public List<Column> getTableColumns(String table) throws QueryException {
+    public List<DB2ColumnModel> getTableColumns(String table) throws QueryException {
         Assert.notEmpty(table, "Table name can not be empty!");
-        throw ExceptionUtils.mpe(NOT_SUPPORTED);
+        //throw ExceptionUtils.mpe(NOT_SUPPORTED);
+        ResultSet resultSet = null;
+        try {
+            //查询指定表的欄位
+            resultSet = getMetaData().getColumns(getCatalog(), getSchema(), table, PERCENT_SIGN);
+            //映射
+            return Mapping.convertList(resultSet, DB2ColumnModel.class);
+        } catch (SQLException e) {
+            throw ExceptionUtils.mpe(e);
+        } finally {
+            JdbcUtils.close(resultSet);
+        }
     }
 
     /**
@@ -88,7 +137,10 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
      */
     @Override
     public List<? extends Column> getTableColumns() throws QueryException {
-        throw ExceptionUtils.mpe(NOT_SUPPORTED);
+
+      return getTableColumns(PERCENT_SIGN);
+
+        //throw ExceptionUtils.mpe(NOT_SUPPORTED);
     }
 
     /**
@@ -100,7 +152,91 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
      */
     @Override
     public List<? extends PrimaryKey> getPrimaryKeys(String table) throws QueryException {
-        throw ExceptionUtils.mpe(NOT_SUPPORTED);
+
+        ResultSet resultSet = null;
+        try {
+            //查询
+            resultSet = getMetaData().getPrimaryKeys(getCatalog(), getSchema(), table);
+            //映射
+            return Mapping.convertList(resultSet, OraclePrimaryKeyModel.class);
+        } catch (SQLException e) {
+            throw ExceptionUtils.mpe(e);
+        } finally {
+            JdbcUtils.close(resultSet, this.connection);
+        }
+        //throw ExceptionUtils.mpe(NOT_SUPPORTED);
     }
+
+    /**
+     * 获取所有主键
+     *
+     * @return {@link List}
+     * @throws QueryException QueryException
+     */
+    @Override
+    public List<? extends PrimaryKey> getPrimaryKeys() throws QueryException {
+        ResultSet resultSet = null;
+        try {
+            // 由于单条循环查询存在性能问题，所以这里通过自定义SQL查询数据库主键信息
+            String sql = "SELECT TABLE_CAT, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, KEY_SEQ, PK_NAME " +
+                    "FROM SYSIBM.SQLPRIMARYKEYS ORDER BY TABLE_NAME, KEY_SEQ";
+            // 拼接参数
+            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase())) .executeQuery();
+            sql = null;
+            return Mapping.convertList(resultSet, DB2PrimaryKeyModel.class);
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        } finally {
+            JdbcUtils.close(resultSet);
+        }
+    }
+
+    /**
+     * 獲取外鍵列表
+     *
+     * @return {@link List}
+     * @throws QueryException QueryException
+     */
+    public List<? extends ForeignKey> getForeignKeys(String table) throws QueryException {
+        ResultSet resultSet = null;
+        try {
+            // 由于单条循环查询存在性能问题，所以这里通过自定义SQL查询数据库主键信息
+            String sql = "SELECT TBNAME AS TABLE_NAME, RELNAME AS FK_NAME, REFTBNAME AS REF_TABLE_NAME, " +
+                    "FKCOLNAMES AS REF_COLUMN_NAME FROM SYSIBM.SYSRELS WHERE TBNAME ='"+table+"'";
+            // 拼接参数
+            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase())) .executeQuery();
+            sql = null;
+            return Mapping.convertList(resultSet, DB2ForeignKeyModel.class);
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        } finally {
+            JdbcUtils.close(resultSet);
+        }
+    }
+
+    //@Override
+    /**
+     * 獲取外鍵列表
+     *
+     * @return {@link List}
+     * @throws QueryException QueryException
+     */
+    public List<? extends ForeignKey> getForeignKeys() throws QueryException {
+        ResultSet resultSet = null;
+        try {
+            // 由于单条循环查询存在性能问题，所以这里通过自定义SQL查询数据库主键信息
+            String sql = "SELECT TBNAME AS TABLE_NAME, RELNAME AS FK_NAME, REFTBNAME AS REF_TABLE_NAME, FKCOLNAMES AS REF_COLUMN_NAME FROM SYSIBM.SYSRELS";
+            // 拼接参数
+            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase())) .executeQuery();
+            sql = null;
+            return Mapping.convertList(resultSet, DB2ForeignKeyModel.class);
+        } catch (SQLException e) {
+            throw new QueryException(e);
+        } finally {
+            JdbcUtils.close(resultSet);
+        }
+    }
+
+
 
 }

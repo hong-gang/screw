@@ -22,6 +22,7 @@ import cn.smallbun.screw.core.metadata.Column;
 import cn.smallbun.screw.core.metadata.Database;
 import cn.smallbun.screw.core.metadata.PrimaryKey;
 import cn.smallbun.screw.core.metadata.Table;
+import cn.smallbun.screw.core.query.mysql.model.MySqlColumnModel;
 import cn.smallbun.screw.core.util.Assert;
 import cn.smallbun.screw.core.util.ExceptionUtils;
 
@@ -75,7 +76,7 @@ public class OtherDataBaseQuery extends AbstractDatabaseQuery {
      * @throws QueryException QueryException
      */
     @Override
-    public List<Column> getTableColumns(String table) throws QueryException {
+    public List<MySqlColumnModel> getTableColumns(String table) throws QueryException {
         Assert.notEmpty(table, "Table name can not be empty!");
         throw ExceptionUtils.mpe(NOT_SUPPORTED);
     }

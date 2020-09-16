@@ -18,15 +18,13 @@
 package cn.smallbun.screw.core.process;
 
 import cn.smallbun.screw.core.Configuration;
-import cn.smallbun.screw.core.metadata.Column;
-import cn.smallbun.screw.core.metadata.Database;
-import cn.smallbun.screw.core.metadata.PrimaryKey;
-import cn.smallbun.screw.core.metadata.Table;
+import cn.smallbun.screw.core.metadata.*;
 import cn.smallbun.screw.core.metadata.model.ColumnModel;
 import cn.smallbun.screw.core.metadata.model.DataModel;
 import cn.smallbun.screw.core.metadata.model.TableModel;
 import cn.smallbun.screw.core.query.DatabaseQuery;
 import cn.smallbun.screw.core.query.DatabaseQueryFactory;
+import cn.smallbun.screw.core.query.db2.Db2DataBaseQuery;
 import cn.smallbun.screw.core.util.StringUtils;
 
 import java.util.ArrayList;
@@ -77,22 +75,36 @@ public class DataModelProcess extends AbstractProcess {
         long start = System.currentTimeMillis();
         //获取数据库
         Database database = query.getDataBase();
-        logger.debug("query the database time consuming:{}ms",
-            (System.currentTimeMillis() - start));
+        long end = System.currentTimeMillis();
+        logger.debug("query the database time consuming:{}ms", (end - start));
+
         model.setDatabase(database.getDatabase());
-        start = System.currentTimeMillis();
+        start = end;
         //获取全部表
         List<? extends Table> tables = query.getTables();
-        logger.debug("query the table time consuming:{}ms", (System.currentTimeMillis() - start));
+        end = System.currentTimeMillis();
+        logger.debug("query the table time consuming:{}ms", (end - start));
+
         //获取全部列
-        start = System.currentTimeMillis();
+        start = end;
         List<? extends Column> columns = query.getTableColumns();
-        logger.debug("query the column time consuming:{}ms", (System.currentTimeMillis() - start));
+        end = System.currentTimeMillis();
+        logger.debug("query the column time consuming:{}ms", (end - start));
+
         //获取主键
-        start = System.currentTimeMillis();
+        start = end;
         List<? extends PrimaryKey> primaryKeys = query.getPrimaryKeys();
-        logger.debug("query the primary key time consuming:{}ms",
-            (System.currentTimeMillis() - start));
+        end = System.currentTimeMillis();
+        logger.debug("query the primary key time consuming:{}ms", (end - start));
+
+        //獲取外鍵
+        if (query instanceof Db2DataBaseQuery) {
+            Db2DataBaseQuery db2DataBaseQuery = (Db2DataBaseQuery) query;
+            start = end;
+            List<? extends ForeignKey> foreignKeys = db2DataBaseQuery.getForeignKeys();
+            end = System.currentTimeMillis();
+            logger.debug("query the foreign keys time consuming:{}ms", (end - start));
+        }
         /*查询操作结束*/
 
         /*处理数据开始*/
@@ -108,10 +120,14 @@ public class DataModelProcess extends AbstractProcess {
             primaryKeysCaching.put(table.getTableName(),
                 primaryKeys.stream().filter(i -> i.getTableName().equals(table.getTableName()))
                     .collect(Collectors.toList()));
+            //處理外鍵
+            //foreignKeysCaching
         }
         for (Table table : tables) {
             /*封装数据开始*/
             TableModel tableModel = new TableModel();
+            //表模式名
+            tableModel.setTableSchem(table.getTableSchem());
             //表名称
             tableModel.setTableName(table.getTableName());
             //说明
@@ -126,6 +142,7 @@ public class DataModelProcess extends AbstractProcess {
             for (Column column : columnsCaching.get(table.getTableName())) {
                 packageColumn(columnModels, key, column);
             }
+            //獲取外鍵
             //放入列
             tableModel.setColumns(columnModels);
         }

@@ -15,36 +15,43 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cn.smallbun.screw.core.metadata.model;
-
-import lombok.Data;
+package cn.smallbun.screw.core.metadata;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
- * 表信息领域对象
+ * 主键
  *
  * @author SanLi
- * Created by qinggang.zuo@gmail.com / 2689170096@qq.com on 2020/3/17 20:22
+ * Created by qinggang.zuo@gmail.com / 2689170096@qq.com on 2020/3/28 21:37
  */
-@Data
-public class TableModel implements Serializable {
-
-    private static final long serialVersionUID = 825666678767312142L;
+public interface ForeignKey extends Serializable {
     /**
-     * 表模式名
-     */
-    private String            tableSchem;/**
      * 表名
+     *
+     * @return {@link String}
      */
-    private String            tableName;
+    String getTableName();
+
     /**
-     * 备注
+     * 外鍵名称
+     *
+     * @return {@link String}
      */
-    private String            remarks;
+    String getFkName();
+
+
     /**
-     * 表列
+     * 關聯外鍵表名
+     *
+     * @return {@link String}
      */
-    private List<ColumnModel> columns;
+    String getRefTableName();
+
+    /**
+     * 關聯外鍵表列名
+     *
+     * @return {@link String}
+     */
+    String getRefColumnName();
 }

@@ -51,7 +51,7 @@ public class MariadbTableModel implements Table {
      *
      */
     @MappingField(value = "TABLE_CAT")
-    private Object            tableSchem;
+    private String            tableSchem;
     /**
      *
      */
