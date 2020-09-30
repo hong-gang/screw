@@ -35,9 +35,10 @@ public class TableModel implements Serializable {
     /**
      * 表模式名
      */
-    private String            tableSchem;/**
-     * 表名
-     */
+    private String            tableSchem;
+    /**
+    * 表名
+    */
     private String            tableName;
     /**
      * 备注

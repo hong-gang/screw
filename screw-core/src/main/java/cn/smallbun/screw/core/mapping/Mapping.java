@@ -102,7 +102,8 @@ public class Mapping {
                 //循环所有的列，获取列名，根据列名获取值
                 for (int i = 1; i <= columnCount; i++) {
                     String columnName = metaData.getColumnName(i);
-                    value.put(columnName, resultSet.getString(i));
+                    String columnLabel = metaData.getColumnLabel(i);
+                    value.put(columnLabel, resultSet.getString(i));
                 }
                 //add object
                 values.add(value);

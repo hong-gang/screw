@@ -30,28 +30,35 @@ import java.io.Serializable;
  */
 
 public enum EngineFileType implements Serializable {
-    /**
-     * HTML
-     */
-    HTML(".html", "documentation_html", "HTML文件"),
-    HTML_TW(".html", "documentation_html_tw", "繁體HTML"),
-    /**
-     * WORD
-     */
-    WORD(".doc", "documentation_word", "WORD文件"),
-    WORD_TW(".doc", "documentation_word_tw", "繁體WORD文件"),
+                                                    /**
+                                                     * HTML
+                                                     */
+                                                    HTML(".html", "documentation_html",
+                                                         "HTML文件"), HTML_TW(".html",
+                                                                            "documentation_html_tw",
+                                                                            "繁體HTML"),
+                                                    /**
+                                                     * WORD
+                                                     */
+                                                    WORD(".doc", "documentation_word",
+                                                         "WORD文件"), WORD_TW(".doc",
+                                                                            "documentation_word_tw",
+                                                                            "繁體WORD文件"),
 
-    /**
-     * WORD
-     */
-    //WORD(".doc", "documentation_word", "WORD文件"),
-    EXCEL_TW(".xml", "documentation_xlsx_tw", "EXCEL文件"),
+                                                    /**
+                                                     * WORD
+                                                     */
+                                                    //WORD(".doc", "documentation_word", "WORD文件"),
+                                                    EXCEL_TW(".xml", "documentation_xlsx_tw",
+                                                             "EXCEL文件"),
 
-    /**
-     * MD
-     */
-    MD(".md", "documentation_md", "Markdown文件"),
-    MD_TW(".md", "documentation_md_tw", "繁體Markdown文件");
+                                                    /**
+                                                     * MD
+                                                     */
+                                                    MD(".md", "documentation_md",
+                                                       "Markdown文件"), MD_TW(".md",
+                                                                            "documentation_md_tw",
+                                                                            "繁體Markdown文件");
 
     /**
      * 文件后缀

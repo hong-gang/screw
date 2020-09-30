@@ -294,6 +294,7 @@
                 <artifactId>zip4j</artifactId>
                 <version>${zip4j.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
     <!--模块-->
@@ -303,6 +304,7 @@
         <module>screw-extension</module>
     </modules>
     <distributionManagement>
+
         <snapshotRepository>
             <id>deploymentRepo</id>
             <name>Nexus Snapshot Repository</name>
@@ -313,6 +315,7 @@
             <name>Nexus Release Repository</name>
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
+
     </distributionManagement>
     <!--自定义mvn伺服设置 开始 -->
     <!--build-->

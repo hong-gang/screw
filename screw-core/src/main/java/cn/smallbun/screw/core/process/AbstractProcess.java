@@ -215,7 +215,9 @@ public abstract class AbstractProcess implements Process {
             columns.forEach(BeanUtils::beanAttributeValueTrim);
         });
         //if file type is word
-        if (config.getEngineConfig().getFileType().equals(EngineFileType.WORD)) {
+        if (config.getEngineConfig().getFileType().equals(EngineFileType.WORD)
+                || config.getEngineConfig().getFileType().equals(EngineFileType.WORD_TW)
+                || config.getEngineConfig().getFileType().equals(EngineFileType.EXCEL_TW)) {
             //escape xml
             beanAttributeValueEscapeXml(dataModel);
             //tables

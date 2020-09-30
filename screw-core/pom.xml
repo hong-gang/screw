@@ -131,6 +131,11 @@
             <groupId>net.lingala.zip4j</groupId>
             <artifactId>zip4j</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.spreada</groupId>
+            <artifactId>ZHConverter</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -141,6 +146,7 @@
                     <artifactId>phoenix-core</artifactId>
                     <version>5.0.0-HBase-2.0</version>
                 </dependency>
+
                 <!--与mysql中的 protobuf-java 冲突-->
                 <dependency>
                     <groupId>mysql</groupId>

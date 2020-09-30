@@ -68,7 +68,8 @@ public class DatabaseQueryFactory implements Serializable {
             //获取实现类
             Class<? extends DatabaseQuery> query = JdbcUtils.getDbType(url).getImplClass();
             //获取有参构造
-            Constructor<? extends DatabaseQuery> constructor = query.getConstructor(DataSource.class);
+            Constructor<? extends DatabaseQuery> constructor = query
+                .getConstructor(DataSource.class);
             //实例化
             return constructor.newInstance(dataSource);
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException

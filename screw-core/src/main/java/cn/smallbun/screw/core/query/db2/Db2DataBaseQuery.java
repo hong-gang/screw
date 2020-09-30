@@ -78,7 +78,7 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
         try {
             //查询
             resultSet = getMetaData().getTables(getCatalog(), getSchema(), PERCENT_SIGN,
-                    new String[] { "TABLE" });
+                new String[] { "TABLE" });
             //映射
             List<DB2TableModel> list = Mapping.convertList(resultSet, DB2TableModel.class);
             //由于ORACLE 查询 REMARKS 非常耗费性能，所以这里使用自定义SQL查询
@@ -138,7 +138,7 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
     @Override
     public List<? extends Column> getTableColumns() throws QueryException {
 
-      return getTableColumns(PERCENT_SIGN);
+        return getTableColumns(PERCENT_SIGN);
 
         //throw ExceptionUtils.mpe(NOT_SUPPORTED);
     }
@@ -178,10 +178,11 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
         ResultSet resultSet = null;
         try {
             // 由于单条循环查询存在性能问题，所以这里通过自定义SQL查询数据库主键信息
-            String sql = "SELECT TABLE_CAT, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, KEY_SEQ, PK_NAME " +
-                    "FROM SYSIBM.SQLPRIMARYKEYS ORDER BY TABLE_NAME, KEY_SEQ";
+            String sql = "SELECT TABLE_CAT, TABLE_SCHEM, TABLE_NAME, COLUMN_NAME, KEY_SEQ, PK_NAME "
+                         + "FROM SYSIBM.SQLPRIMARYKEYS ORDER BY TABLE_NAME, KEY_SEQ";
             // 拼接参数
-            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase())) .executeQuery();
+            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase()))
+                .executeQuery();
             sql = null;
             return Mapping.convertList(resultSet, DB2PrimaryKeyModel.class);
         } catch (SQLException e) {
@@ -201,10 +202,12 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
         ResultSet resultSet = null;
         try {
             // 由于单条循环查询存在性能问题，所以这里通过自定义SQL查询数据库主键信息
-            String sql = "SELECT TBNAME AS TABLE_NAME, RELNAME AS FK_NAME, REFTBNAME AS REF_TABLE_NAME, " +
-                    "FKCOLNAMES AS REF_COLUMN_NAME FROM SYSIBM.SYSRELS WHERE TBNAME ='"+table+"'";
+            String sql = "SELECT TBNAME AS TABLE_NAME, RELNAME AS FK_NAME, REFTBNAME AS REF_TABLE_NAME, "
+                         + "FKCOLNAMES AS REF_COLUMN_NAME FROM SYSIBM.SYSRELS WHERE TBNAME ='"
+                         + table + "'";
             // 拼接参数
-            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase())) .executeQuery();
+            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase()))
+                .executeQuery();
             sql = null;
             return Mapping.convertList(resultSet, DB2ForeignKeyModel.class);
         } catch (SQLException e) {
@@ -227,7 +230,8 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
             // 由于单条循环查询存在性能问题，所以这里通过自定义SQL查询数据库主键信息
             String sql = "SELECT TBNAME AS TABLE_NAME, RELNAME AS FK_NAME, REFTBNAME AS REF_TABLE_NAME, FKCOLNAMES AS REF_COLUMN_NAME FROM SYSIBM.SYSRELS";
             // 拼接参数
-            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase())) .executeQuery();
+            resultSet = prepareStatement(String.format(sql, getDataBase().getDatabase()))
+                .executeQuery();
             sql = null;
             return Mapping.convertList(resultSet, DB2ForeignKeyModel.class);
         } catch (SQLException e) {
@@ -236,7 +240,5 @@ public class Db2DataBaseQuery extends AbstractDatabaseQuery {
             JdbcUtils.close(resultSet);
         }
     }
-
-
 
 }

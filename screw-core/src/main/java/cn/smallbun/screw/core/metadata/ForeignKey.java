@@ -40,7 +40,6 @@ public interface ForeignKey extends Serializable {
      */
     String getFkName();
 
-
     /**
      * 關聯外鍵表名
      *
